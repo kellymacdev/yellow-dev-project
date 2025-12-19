@@ -1,3 +1,4 @@
+// ID validation
 function luhnCheck(number) {
     let sum = 0;
     let alternate = false;
@@ -17,7 +18,7 @@ function luhnCheck(number) {
     return sum % 10 === 0;
 }
 
-
+// Extract date of birth from SA ID number
 function extractDobFromId(idNumber) {
     const yy = parseInt(idNumber.slice(0, 2), 10);
     const mm = parseInt(idNumber.slice(2, 4), 10);
@@ -41,7 +42,7 @@ function extractDobFromId(idNumber) {
     return date;
 }
 
-
+// Validate SA ID number
 function validateSaId(idNumber) {
     if (!/^\d{13}$/.test(idNumber)) return { valid: false };
 
@@ -56,6 +57,7 @@ function validateSaId(idNumber) {
     };
 }
 
+// Check birthday matches DOB from ID
 function birthdayMatchesId(birthdayStr, dobFromId) {
     if (!birthdayStr || !dobFromId) return false;
 
@@ -68,6 +70,7 @@ function birthdayMatchesId(birthdayStr, dobFromId) {
     );
 }
 
+// Calculate age from DOB
 function calculateAge(dob) {
     if (!dob) return null;
     const today = new Date();
@@ -78,3 +81,4 @@ function calculateAge(dob) {
     }
     return age;
 }
+

@@ -78,14 +78,15 @@ function render() {
 
     // Age verification
     const age = state.idDob ? calculateAge(state.idDob) : null;
-    if (age !== null && age < 18) {
-        errors.age.textContent = "Applicants must be at least 18 years old.";
+    
+    if (age !== null && age < 18 || age !== null &&age > 65) {
+        errors.age.textContent = "Applicants must be between 18 and 65 years of age.";
         errors.age.classList.remove("hidden");
     }
 
 
     // Form progression steps
-    if (state.idValid && state.birthdayValid && age >= 18) {
+    if (state.idValid && state.birthdayValid && 18 <= age && age <= 65) {
         console.log("ID and birthday valid:", state.idValid, state.birthdayValid);
         showUpTo("income");
     }
@@ -106,6 +107,7 @@ async function loadPhones() {
     const res = await fetch("/api/phones/");
     const phones = await res.json();
     state.availablePhones = phones;
+    console.log("Loaded phones:", phones);
 
     const phoneSelect = document.getElementById("phone-select");
     phoneSelect.innerHTML = '<option value="">-- Choose a phone --</option>'; // reset
@@ -134,17 +136,19 @@ function displayLoanInfo() {
         return;
     }
 
+
     const phone = state.availablePhones.find(phone => phone.id === state.selectedPhoneId);
 
     document.getElementById("loan-cash-price").textContent = phone.cash_price.toFixed(2);
     document.getElementById("loan-deposit-percent").textContent = (phone.deposit_percent * 100).toFixed(0);
+    document.getElementById("loan-deposit-amount").textContent = (phone.cash_price * phone.deposit_percent).toFixed(2);
 
     const loanPrincipal = phone.cash_price * (1 - phone.deposit_percent);
     const loanAmount = loanPrincipal * (1 + phone.interest_rate);
     const dailyPayment = loanAmount / 360;
 
     document.getElementById("loan-principal").textContent = loanPrincipal.toFixed(2);
-    document.getElementById("loan-interest-rate").textContent = (phone.interest_rate * 100).toFixed(2);
+    //document.getElementById("loan-interest-rate").textContent = (phone.interest_rate * 100).toFixed(2);
     document.getElementById("loan-amount").textContent = loanAmount.toFixed(2);
     document.getElementById("daily-payment").textContent = dailyPayment.toFixed(2);
 
@@ -157,7 +161,7 @@ inputs.fullName.addEventListener("input", (event) => {
     state.fullName = event.target.value.trim() || null;
 });
 
-inputs.idNumber.addEventListener("blur", (event) => {
+inputs.idNumber.addEventListener("blur", async (event) =>  {
     console.log("ID number field lost focus");
     const value = event.target.value.replace(/\D/g, "");
     inputs.idNumber.value = value;
@@ -174,13 +178,27 @@ inputs.idNumber.addEventListener("blur", (event) => {
         errors.id.textContent = "Invalid SA ID number.";
         errors.id.classList.remove("hidden");
     } else {
-        errors.id.textContent = "";
-        errors.id.classList.add("hidden");
+        console.log("Checking if ID number already exists via API");
+        try {
+        const res = await fetch(`/api/check-id/?id_number=${state.idNumber}`);
+        const data = await res.json();
+        console.log("ID existence check response:", data);
+        if (data.exists) {
+            errors.id.textContent = "An application with this ID number already exists.";
+            errors.id.classList.remove("hidden");
+            state.idValid = false;
+            //render();
+        }
+    } catch (err) {
+        console.error("ID check failed:", err);
+    }
+        
     }
 
     // Re-check birthday match if birthday already entered
     if (state.birthday && state.idDob) {
         state.birthdayValid = birthdayMatchesId(state.birthday, state.idDob);
+        console.log("Birthday match result:", state.birthdayValid);
     }
 
 });
@@ -214,6 +232,7 @@ inputs.birthday.addEventListener("change", (event) => {
 
     if (state.idDob) {
         state.birthdayValid = birthdayMatchesId(value, state.idDob);
+        console.log("Birthday match result:", state.birthdayValid);
     } else {
         state.birthdayValid = false;
     }
@@ -239,6 +258,47 @@ inputs.proofDocument.addEventListener("change", (event) => {
     state.proofDocument = event.target.files[0] || null;
     render();
 });
+
+
+// Form submission
+const formEl = document.getElementById("loan-application-form");
+const formErrorsEl = document.getElementById("form-errors");
+formEl.addEventListener("submit", async (event) => {
+    event.preventDefault(); 
+
+    const formData = new FormData();
+    formData.append("full_name", state.fullName);
+    formData.append("id_number", state.idNumber);
+    formData.append("birthday", state.birthday);
+    formData.append("monthly_income", state.monthlyIncome);
+    formData.append("proof_document", state.proofDocument);
+    formData.append("selected_phone", state.selectedPhoneId);
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    try {
+        const res = await fetch("/apply-loan/", {
+            method: "POST",
+            headers: { "X-CSRFToken": csrftoken },
+            body: formData
+        });
+
+        const data = await res.json();
+        console.log("Form submission response:", data);
+
+        if (res.ok && data.success) {
+            window.location.href = "/success/";
+        } else if (data.errors) {
+            formErrorsEl.innerHTML = Object.values(data.errors)
+                .flat()
+                .map(err => `<p>${err}</p>`)
+                .join("");
+        }
+    } catch (err) {
+        console.error("Error submitting form:", err);
+    }
+});
+
 
 // Initial render
 render();

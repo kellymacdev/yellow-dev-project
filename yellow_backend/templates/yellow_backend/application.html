@@ -8,7 +8,8 @@
 {% block content %}
 <h1>Apply for a Smartphone Loan</h1>
 
-<form id="loan-application-form" enctype="multipart/form-data" novalidate>
+<form id="loan-application-form" enctype="multipart/form-data">
+{% csrf_token %}
 
     <!-- STEP 1: Personal info -->
     <section id="step-personal" class="form-step">
@@ -63,12 +64,24 @@
     </select>
 
     <div id="phone-loan-info" class="hidden">
-        <p>Cash Price: R<span id="loan-cash-price"></span></p>
-        <p>Deposit: <span id="loan-deposit-percent"></span>%</p>
-        <p>Loan Principal: R<span id="loan-principal"></span></p>
-        <p>Interest Rate: <span id="loan-interest-rate"></span>%</p>
-        <p>Total Loan Amount: R<span id="loan-amount"></span></p>
-        <p>Daily Payment: R<span id="daily-payment"></span></p>
+        <p class="info-heading">Cash Price:</p>
+        <p class="info">
+            The market price for this phone. This price must be confirmed with both the merchant and customer. 
+            The actual amount charged by the merchant may vary.</p>
+        <p> R<span id="loan-cash-price"></span></p>
+
+        <p class="info-heading">Deposit percent:</p>
+        <p><span id="loan-deposit-percent"></span>%</p>
+        <p class="info-heading">Deposit amount:</p>
+        <p>R<span id="loan-deposit-amount"></span></p>
+        <p class="info-heading">Remaining loan amount:</p>
+        <p>R<span id="loan-principal"></span></p>
+        <!--<p>Interest Rate: <span id="loan-interest-rate"></span>%</p>-->
+        <p class="info-heading">Payments: </p>
+        <p>R<span id="daily-payment"></span> every day for 360 days</p>
+        <p class="info-heading">Total Price:</p>
+        <p>R<span id="loan-amount"></span></p>
+        
     </div>
     </section>
 
@@ -82,4 +95,6 @@
     </section>
 
 </form>
+
+<div id="form-errors"></div>
 {% endblock %}
