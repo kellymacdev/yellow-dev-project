@@ -291,7 +291,7 @@ formEl.addEventListener("submit", async (event) => {
         } else if (data.errors) {
             formErrorsEl.innerHTML = Object.values(data.errors)
                 .flat()
-                .map(err => `<p>${err}</p>`)
+                .map(err => `<p class="error-message">${err}</p>`)
                 .join("");
         }
     } catch (err) {
