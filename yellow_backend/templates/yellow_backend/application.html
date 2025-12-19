@@ -57,13 +57,19 @@
 
     <!-- STEP 3: Phone selection -->
     <section id="step-phone" class="form-step hidden">
-        <h2>Select a phone</h2>
+    <label for="phone-select">Select a phone:</label>
+    <select id="phone-select">
+        <option value="">-- Choose a phone --</option>
+    </select>
 
-        <div id="phone-options">
-            <!-- Populated dynamically via JS -->
-        </div>
-
-        <div id="phone-errors" class="error"></div>
+    <div id="phone-loan-info" class="hidden">
+        <p>Cash Price: R<span id="loan-cash-price"></span></p>
+        <p>Deposit: <span id="loan-deposit-percent"></span>%</p>
+        <p>Loan Principal: R<span id="loan-principal"></span></p>
+        <p>Interest Rate: <span id="loan-interest-rate"></span>%</p>
+        <p>Total Loan Amount: R<span id="loan-amount"></span></p>
+        <p>Daily Payment: R<span id="daily-payment"></span></p>
+    </div>
     </section>
 
     <!-- STEP 4: Review & submit -->

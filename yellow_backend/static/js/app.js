@@ -9,6 +9,7 @@ const state = {
     birthdayValid: false,
     monthlyIncome: null,
     proofDocument: null,
+    availablePhones: [],
 
     selectedPhoneId: null,
 };
@@ -37,8 +38,6 @@ const errors = {
     birthday: document.getElementById("birthday-error"),
     age: document.getElementById("age-error"),
 };
-
-const phoneOptionsEl = document.getElementById("phone-options");
 
 // Reveal functions
 function showStep(stepName) {
@@ -99,6 +98,59 @@ function render() {
         showUpTo("submit");
     }
 }
+
+
+// ________________________________________ Fetch Phone Data ________________________________________
+
+async function loadPhones() {
+    const res = await fetch("/api/phones/");
+    const phones = await res.json();
+    state.availablePhones = phones;
+
+    const phoneSelect = document.getElementById("phone-select");
+    phoneSelect.innerHTML = '<option value="">-- Choose a phone --</option>'; // reset
+
+    phones.forEach(phone => {
+        const option = document.createElement("option");
+        option.value = phone.id;
+        option.textContent = phone.make + " " + phone.model;
+        phoneSelect.appendChild(option);
+    });
+
+    // Add event listener for selection
+    phoneSelect.addEventListener("change", () => {
+        const selectedId = phoneSelect.value;
+        state.selectedPhoneId = selectedId ? parseInt(selectedId) : null;
+        displayLoanInfo();
+        render();
+    });
+}
+
+function displayLoanInfo() {
+    const infoEl = document.getElementById("phone-loan-info");
+
+    if (!state.selectedPhoneId) {
+        infoEl.classList.add("hidden");
+        return;
+    }
+
+    const phone = state.availablePhones.find(phone => phone.id === state.selectedPhoneId);
+
+    document.getElementById("loan-cash-price").textContent = phone.cash_price.toFixed(2);
+    document.getElementById("loan-deposit-percent").textContent = (phone.deposit_percent * 100).toFixed(0);
+
+    const loanPrincipal = phone.cash_price * (1 - phone.deposit_percent);
+    const loanAmount = loanPrincipal * (1 + phone.interest_rate);
+    const dailyPayment = loanAmount / 360;
+
+    document.getElementById("loan-principal").textContent = loanPrincipal.toFixed(2);
+    document.getElementById("loan-interest-rate").textContent = (phone.interest_rate * 100).toFixed(2);
+    document.getElementById("loan-amount").textContent = loanAmount.toFixed(2);
+    document.getElementById("daily-payment").textContent = dailyPayment.toFixed(2);
+
+    infoEl.classList.remove("hidden");
+}
+
 
 // Event listeners
 inputs.fullName.addEventListener("input", (event) => {
@@ -190,5 +242,6 @@ inputs.proofDocument.addEventListener("change", (event) => {
 
 // Initial render
 render();
+loadPhones();
 
 });
