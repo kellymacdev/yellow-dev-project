@@ -1,0 +1,79 @@
+{% extends "yellow_backend/layout.html" %}
+{% load static %}
+
+
+
+{% block title %}Apply for a Smartphone Loan{% endblock %}
+
+{% block content %}
+<h1>Apply for a Smartphone Loan</h1>
+
+<form id="loan-application-form" enctype="multipart/form-data" novalidate>
+
+    <!-- STEP 1: Personal info -->
+    <section id="step-personal" class="form-step">
+        <h2>Your details</h2>
+
+        <label>
+            Full name
+            <input type="text" id="full-name" required />
+        </label>
+
+        <label>
+            South African ID number
+            <input type="text" id="id-number" maxlength="13" inputmode="numeric" required />
+        </label>
+
+        <div id="id-error" class="error-message hidden"></div>
+
+
+        <label>
+            Birth date
+            <input type="date" id="birthday" min="1925-01-01" max="2025-12-19" required />
+        </label>
+
+        <div id="birthday-errors" class="error"></div>
+
+        <div id="birthday-error" class="error-message hidden"></div>
+        <div id="age-error" class="error-message hidden"></div>
+    </section>
+
+    <!-- STEP 2: Income -->
+    <section id="step-income" class="form-step hidden">
+        <h2>Your income</h2>
+
+        <label>
+            Monthly income (ZAR)
+            <input type="number" id="monthly-income" min="0" step="0.01" required />
+        </label>
+
+        <label>
+            Proof of income
+            <input type="file" id="proof-document" accept=".pdf,.jpg,.jpeg,.png" required />
+        </label>
+
+        <div id="income-errors" class="error"></div>
+    </section>
+
+    <!-- STEP 3: Phone selection -->
+    <section id="step-phone" class="form-step hidden">
+        <h2>Select a phone</h2>
+
+        <div id="phone-options">
+            <!-- Populated dynamically via JS -->
+        </div>
+
+        <div id="phone-errors" class="error"></div>
+    </section>
+
+    <!-- STEP 4: Review & submit -->
+    <section id="step-submit" class="form-step hidden">
+        <h2>Review & submit</h2>
+
+        <div id="application-summary"></div>
+
+        <button type="submit">Submit application</button>
+    </section>
+
+</form>
+{% endblock %}
