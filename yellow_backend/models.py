@@ -1,6 +1,18 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from decimal import Decimal
+import uuid
+import os
+
+def proof_document_upload_path(instance, filename):
+    """
+    Custom upload path for proof of income.
+    Filename format: <uuid>_<original_name>
+    """
+    ext = filename.split('.')[-1]
+    filename = f"{instance.id_number}_{uuid.uuid4().hex}.{ext}"
+    return os.path.join('proofs/', filename)  # saved in MEDIA_ROOT/proofs/
+    
 
 class Phone(models.Model):
     make = models.CharField(max_length=100)
@@ -52,11 +64,7 @@ class Application(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0)]
     )
-    proof_document = models.FileField(
-        upload_to='proof_documents/',
-        null=True,
-        blank=True
-    )
+    proof_document = models.FileField(upload_to=proof_document_upload_path)
     selected_phone = models.ForeignKey(Phone, on_delete=models.PROTECT) #phones cannot be deleted if linked to applications
     
     created_at = models.DateTimeField(auto_now_add=True)

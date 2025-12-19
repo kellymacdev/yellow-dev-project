@@ -23,7 +23,6 @@ const steps = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM loaded");
 
 const inputs = {
     fullName: document.getElementById("full-name"),
@@ -64,11 +63,6 @@ function render() {
         error.classList.add("hidden");
     });
 
-    // ID error handling
-    //if (state.idNumber && !state.idValid) {
-    //    errors.id.textContent = "Invalid SA ID number.";
-    //    errors.id.classList.remove("hidden");
-    //}
 
     // Birthday match error handling
     if (state.idDob && state.birthday && !state.birthdayValid) {
@@ -87,7 +81,6 @@ function render() {
 
     // Form progression steps
     if (state.idValid && state.birthdayValid && 18 <= age && age <= 65) {
-        console.log("ID and birthday valid:", state.idValid, state.birthdayValid);
         showUpTo("income");
     }
 
@@ -102,15 +95,34 @@ function render() {
 
 
 // ________________________________________ Fetch Phone Data ________________________________________
-
 async function loadPhones() {
-    const res = await fetch("/api/phones/");
+    const phoneSelect = document.getElementById("phone-select");
+
+    if (!state.monthlyIncome || isNaN(state.monthlyIncome)) {
+        phoneSelect.innerHTML = "<option disabled>Enter your income to see phones</option>";
+        return;
+    };
+
+    const res = await fetch(`/api/phones/?monthly_income=${state.monthlyIncome}`);
+    if (!res.ok) {
+        const err = await res.json();
+        console.error("Error fetching phones:", err);
+        phoneSelect.innerHTML = `<option disabled>${err.error}</option>`;
+        return;
+    }
+    
     const phones = await res.json();
     state.availablePhones = phones;
-    console.log("Loaded phones:", phones);
 
-    const phoneSelect = document.getElementById("phone-select");
+    if (phones.length === 0) {
+        phoneSelect.innerHTML = "<option disabled>No phones available for your income</option>";
+        return;
+    }
+
+    
     phoneSelect.innerHTML = '<option value="">-- Choose a phone --</option>'; // reset
+    state.selectedPhoneId = null;
+
 
     phones.forEach(phone => {
         const option = document.createElement("option");
@@ -136,7 +148,6 @@ function displayLoanInfo() {
         return;
     }
 
-
     const phone = state.availablePhones.find(phone => phone.id === state.selectedPhoneId);
 
     document.getElementById("loan-cash-price").textContent = phone.cash_price.toFixed(2);
@@ -148,46 +159,38 @@ function displayLoanInfo() {
     const dailyPayment = loanAmount / 360;
 
     document.getElementById("loan-principal").textContent = loanPrincipal.toFixed(2);
-    //document.getElementById("loan-interest-rate").textContent = (phone.interest_rate * 100).toFixed(2);
-    document.getElementById("loan-amount").textContent = loanAmount.toFixed(2);
+    document.getElementById("loan-amount").textContent = (loanAmount+(phone.cash_price * phone.deposit_percent)).toFixed(2);
     document.getElementById("daily-payment").textContent = dailyPayment.toFixed(2);
 
     infoEl.classList.remove("hidden");
 }
 
 
-// Event listeners
+// _______________________________________ Event listeners _______________________________________
 inputs.fullName.addEventListener("input", (event) => {
     state.fullName = event.target.value.trim() || null;
 });
 
 inputs.idNumber.addEventListener("blur", async (event) =>  {
-    console.log("ID number field lost focus");
     const value = event.target.value.replace(/\D/g, "");
     inputs.idNumber.value = value;
-    console.log("ID Number entered:", value);
     state.idNumber = value;
 
     const result = validateSaId(value);
-    console.log("ID validation result:", result);
     state.idValid = result.valid;
     state.idDob = result.dob || null;
-    console.log("Extracted DOB from ID:", state.idDob);
 
     if (!state.idValid) {
         errors.id.textContent = "Invalid SA ID number.";
         errors.id.classList.remove("hidden");
     } else {
-        console.log("Checking if ID number already exists via API");
         try {
         const res = await fetch(`/api/check-id/?id_number=${state.idNumber}`);
         const data = await res.json();
-        console.log("ID existence check response:", data);
         if (data.exists) {
             errors.id.textContent = "An application with this ID number already exists.";
             errors.id.classList.remove("hidden");
             state.idValid = false;
-            //render();
         }
     } catch (err) {
         console.error("ID check failed:", err);
@@ -198,7 +201,6 @@ inputs.idNumber.addEventListener("blur", async (event) =>  {
     // Re-check birthday match if birthday already entered
     if (state.birthday && state.idDob) {
         state.birthdayValid = birthdayMatchesId(state.birthday, state.idDob);
-        console.log("Birthday match result:", state.birthdayValid);
     }
 
 });
@@ -228,11 +230,9 @@ inputs.birthday.addEventListener("change", (event) => {
     const value = event.target.value;
 
     state.birthday = value;
-    console.log("Birthday entered:", value);
 
     if (state.idDob) {
         state.birthdayValid = birthdayMatchesId(value, state.idDob);
-        console.log("Birthday match result:", state.birthdayValid);
     } else {
         state.birthdayValid = false;
     }
@@ -251,6 +251,8 @@ inputs.monthlyIncome.addEventListener("input", (event) => {
         state.monthlyIncome = income;
     }
 
+    loadPhones();
+
     render();
 });
 
@@ -260,7 +262,7 @@ inputs.proofDocument.addEventListener("change", (event) => {
 });
 
 
-// Form submission
+// _______________________________________ Form submission _______________________________________
 const formEl = document.getElementById("loan-application-form");
 const formErrorsEl = document.getElementById("form-errors");
 formEl.addEventListener("submit", async (event) => {
@@ -302,6 +304,5 @@ formEl.addEventListener("submit", async (event) => {
 
 // Initial render
 render();
-loadPhones();
 
 });

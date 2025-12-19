@@ -1,26 +1,149 @@
+/* --- General body and container --- */
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    background-color: #f5f6fa;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    color: #222;
+    margin-top: 2rem;
+}
+
+form {
+    max-width: 480px;
+    margin: 2rem auto;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* --- Step sections --- */
+.form-step {
+    display: none;
+}
+
+.form-step:not(.hidden) {
+    display: block;
+}
+
+h2 {
+    color: #dad53e;
+    margin-bottom: 1rem;
+}
+
+/* --- Form fields --- */
+label {
+    display: block;
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.3rem;
+    color: #333;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="file"],
+select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #0077ff;
+    box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.2);
+}
+
+/* --- Buttons --- */
+button,
+input[type="submit"] {
+    background-color: #ebe565;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.75rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1.5rem;
+    transition: background 0.2s;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: #b4ab05;
+}
+
+/* --- Error messages --- */
+.error-message,
+#error {
+    color: #ff4d4f;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
 .hidden {
     display: none;
 }
 
+/* --- Loan info box --- */
+#phone-loan-info {
+    background-color: #f0f8ff;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-left: 4px solid #0077ff;
+    border-radius: 6px;
+}
+
+#phone-loan-info p {
+    margin: 0.3rem 0;
+}
+
+.info-heading {
+    font-weight: 600;
+    margin-top: 0.5rem;
+    color: #005fcc;
+}
+
+.info {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* --- Responsive --- */
+@media (max-width: 500px) {
+    form {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+}
+
 .container {
     max-width: 480px;
-    margin: 0 auto;
-    padding: 1rem;
+    margin: 4rem auto;
+    background: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
-label {
-    display: block;
+.success-icon {
+    font-size: 3rem;
+    color: #f2da39; /* green */
     margin-bottom: 1rem;
-}
-
-input, button {
-    width: 100%;
-    padding: 0.75rem;
-}
-
-
-.error-message {
-    color: red;
-    font-size: 0.9rem;
-    margin-top: 0.25rem;
 }
