@@ -24,10 +24,6 @@ class Phone(models.Model):
     interestRate = models.DecimalField(
         max_digits=4, decimal_places=2
     )
-    
-    max_salary_multiplier = models.DecimalField(max_digits=4, decimal_places=2, default=10.0,
-    help_text="Max number of months' salary allowed to purchase"
-)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
