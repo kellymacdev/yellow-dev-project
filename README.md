@@ -83,7 +83,7 @@ Local storage used in development environment, something like an S3 bucket shoul
 
 ### 1. Frontend Validation -> Progressive Form Disclosure
 - The application form is split into logical sections.
-- Subsequent sections are only revealed after the current section validates successfully (see Validation Rules).
+- Subsequent sections are only revealed after the current section validates successfully (see [Frontend validation rules](#frontend-validation-user-guidance-only)).
 - This exists to:
   - improve user experience
   - prevent submission of incomplete or inconsistent data
@@ -94,9 +94,9 @@ This approach reduces backend error handling complexity, however it does not rep
 ### 2. Backend Validation (Authoritative)
 All critical validation is enforced server-side using Django’s form and model validation mechanisms.
 Includes:
-- Django Form/ModelForm validation including file presence and association checks (see Validation Rules)
-- Field-level validators (e.g. MinValueValidator)
-- Database constraints (e.g. uniqueness on ID numbers and phone models) and foreign key integrity enforcement (see Validation Rules)
+- Django Form/ModelForm validation including file presence and association checks (see [Backend validation rules](#backend-django-form-level-validation-authoratative))
+- Field-level validators (e.g. MinValueValidator) (see [Model Field validation rules](#model-field-validation))
+- Database constraints (e.g. uniqueness on ID numbers and phone models) and foreign key integrity enforcement (see [Database integrity rules](#database-level-integrity))
 
 No application state is trusted unless it has passed backend validation.
 
@@ -185,6 +185,7 @@ The following backend validations are not implemented at this stage:
 ---
 
 ## Project Structure (relevant parts)
+```
 project_root/
 ├── manage.py
 ├── requirements.txt
@@ -204,7 +205,7 @@ project_root/
 │   └── css/
 │ └── templates/
 └── db.sqlite3
-
+```
 ---
 
 ## Environment Setup
